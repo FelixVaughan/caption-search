@@ -6,4 +6,5 @@ module.exports = {
     filename: "bundle.js", // Output file name
     path: path.resolve(__dirname, "dist"), // Output directory
   },
+  devtool: "source-map", // Add this line to enable source maps
 };
