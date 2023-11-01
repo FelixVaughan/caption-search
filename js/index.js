@@ -1,12 +1,19 @@
 import Youtube from "./youtube.js";
 
-// Your code to create and use the Youtube instance
-const youtubeInstance = new Youtube("your_video_id");
-youtubeInstance
-  .init()
-  .then(() => {
-    // Do something with the initialized Youtube instance
-  })
-  .catch((error) => {
-    console.error("Error initializing Youtube:", error);
-  });
+async function main() {
+  const youtubeInstance = new Youtube("your_video_id");
+  await youtubeInstance.init();
+  // Do something with the initialized Youtube instance
+}
+main();
+// const youtubeInstance = new Youtube("your_video_id");
+// await youtubeInstance.init();
+
+// youtubeInstance
+//   .init()
+//   .then(() => {
+//     // Do something with the initialized Youtube instance
+//   })
+//   .catch((error) => {
+//     console.error("Error initializing Youtube:", error);
+//   });
