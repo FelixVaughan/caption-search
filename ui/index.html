@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+        <title>Captions</title>
+        <meta name="description" content>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div class="extension-popup">
+            <div class="top-container">
+                <input type="text" id="search-input"
+                    placeholder="No Captions Found...">
+                <button id="search-button">Go</button>
+                <span id="results-counter">No Results</span>
+                <select title="Choose your language" id="language-dropdown">
+                    <option value="en" selected>EN</option>
+                    <!-- Options will be dynamically populated here -->
+                </select>
+            </div>
+            <div class="results-container">
+                <!-- Results will be dynamically populated here -->
+            </div>
+        </div>
+        <script src="dist/bundle.js"></script>
+    </body>
+</html>

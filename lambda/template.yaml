@@ -1,0 +1,52 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  lambda function to retrieve and parse YouTube caption information
+Globals:
+  Function:
+    Timeout: 3
+    MemorySize: 128
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+Resources:
+  CaptionsFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: captions-lambda/
+      Handler: app.lambdaHandler
+      Runtime: nodejs18.x
+      Events:
+        CaptionsApi:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: get
+        OptionsApi:
+          Type: HttpApi
+          Properties:
+            Path: /
+            Method: options
+            PayloadFormatVersion: '2.0'  
+  CaptionsApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowMethods:
+          - GET
+          - OPTIONS
+        AllowHeaders:
+          - Content-Type
+        AllowOrigins:
+          - "*"
+
+Outputs:
+  CaptionsFunctionApiUrl:
+    Description: "Invoke URL for the CaptionsFunction Lambda function"
+    Value:
+      Fn::Sub: "https://${CaptionsApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/prod/"
+
+  CaptionsApiUrl:
+    Description: "Invoke URL for the CaptionsApi HTTP API"
+    Value:
+      Fn::Sub: "https://${CaptionsApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/prod/"

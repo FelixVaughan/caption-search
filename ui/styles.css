@@ -1,0 +1,57 @@
+*, *:before, *:after {
+  box-sizing: border-box;
+}
+
+.extension-popup {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  width: 100%; /* Full width to fill the popup */
+}
+
+.top-container {
+  display: flex;
+  align-items: center; /* Aligns items vertically in the center */
+  margin-bottom: 5px;
+  margin-inline: auto;
+  overflow-x: hidden;
+}
+
+#search-input {
+  flex-grow: 1; /* Allows the input to grow and fill the space */
+  border: 1px solid #ccc; /* Example border, can be styled as needed */
+  padding: 5px;
+  border-right: none; /* Removes the right border to integrate with the button */
+}
+
+#search-button {
+  width: 50px; /* Fixed width for the button */
+  background-color: green;
+  color: white;
+  border: 1px solid green; /* Same color as the button for integration */
+  padding: 5px 10px;
+  cursor: pointer;
+  outline: none; /* Removes the outline to integrate with the search bar */
+}
+
+#results-counter {
+  margin-left: 5px; /* Space between the button and counter */
+  text-wrap: nowrap;
+}
+
+#language-dropdown {
+    border: 1px solid #ccc;
+    padding: 5px 7px;
+    background-color: white;
+    font-size: 14px;
+    margin-left: 5px;
+    cursor: pointer;
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Makes it scrollable */
+  max-height: 300px; /* Limits the height of the results container */
+}
+
