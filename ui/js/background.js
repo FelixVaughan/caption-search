@@ -1,44 +1,64 @@
 const requestUrl = "http://127.0.0.1:3333";
-let transcripts = {};
-let fetchStatuses = {};
+let transcripts = new Map();
+let fetchStatuses = new Map(); // Initialize fetchStatuses as a Map
+
+const MAX_SIZE = 15;
+
+const enforceMapSizeLimit = (...maps) => {
+  maps.forEach((map) => {
+    if (map.size > MAX_SIZE) {
+      const excess = [...map.keys()].slice(0, map.size - MAX_SIZE);
+      excess.forEach((key) => map.delete(key));
+    }
+  });
+};
+
 const messageHandler = async (message, sender, sendResponse) => {
   const videoId = message.videoId;
   if (message.type === "fetchTranscripts") {
-    if (["pending", "success"].includes(fetchStatuses[videoId])) {
-      return sendResponse({ fetch: fetchStatuses[videoId] });
+    if (
+      fetchStatuses.has(videoId) &&
+      ["pending", "success"].includes(fetchStatuses.get(videoId))
+    ) {
+      return sendResponse({ fetch: fetchStatuses.get(videoId) });
     }
     try {
-      fetchStatuses[videoId] = "pending";
+      fetchStatuses.set(videoId, "pending"); // Set status in the Map
       const videoUrl = `${requestUrl}?videoId=${videoId}`;
       const result = await fetch(videoUrl);
       if (result.status === 200) {
         let data = await result.json();
         data = data === "No transcript found" ? [] : data;
-        transcripts[videoId] = data;
-        fetchStatuses[videoId] = "success";
-      } else fetchStatuses[videoId] = "failure";
+        transcripts.set(videoId, data);
+        fetchStatuses.set(videoId, "success"); // Update status in the Map
+      } else {
+        fetchStatuses.set(videoId, "failure"); // Update status in the Map
+      }
       chrome.runtime.sendMessage({
         type: "asyncRes",
         videoId,
-        status: fetchStatuses[videoId],
+        status: fetchStatuses.get(videoId),
       });
-      return sendResponse({ fetch: fetchStatuses[videoId] });
+      return sendResponse({ fetch: fetchStatuses.get(videoId) });
     } catch (err) {
       console.error(err);
+      fetchStatuses.set(videoId, "failure"); // Set status in the Map
       return sendResponse({ fetch: "failure" });
+    } finally {
+      enforceMapSizeCap(transcripts, fetchStatuses);
     }
   }
 
   if (message.type === "sendTranscripts") {
-    console.log(fetchStatuses[videoId]);
-    const videoTranscripts = transcripts[videoId] || []; // Use empty array as default
+    console.log(fetchStatuses.get(videoId));
+    const videoTranscripts = transcripts.get(videoId) || [];
     sendResponse({
       transcripts: videoTranscripts,
-      status: fetchStatuses[videoId],
+      status: fetchStatuses.get(videoId),
     });
   }
 
-  sendResponse({ message: "recieved" });
+  sendResponse({ message: "received" });
   return true; // Keep the message channel open for sendResponse
 };
 
@@ -51,6 +71,3 @@ const tabEventHandler = (tabId, changeInfo, tab) => {
 
 chrome.runtime.onMessage.addListener(messageHandler);
 chrome.tabs.onUpdated.addListener(tabEventHandler);
-
-//TODO: delete entries from transcripts when tab is closed and transcripts grow above a certain size (15)
-//TODO: delete entries from transcripts when video is deleted from history
