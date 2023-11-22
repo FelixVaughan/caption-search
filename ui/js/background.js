@@ -1,22 +1,28 @@
 const requestUrl = "http://127.0.0.1:3333";
 let transcripts = {};
-
+let fetchStatuses = {};
 const messageHandler = async (message, sender, sendResponse) => {
   const videoId = message.videoId;
   if (message.type === "fetchTranscripts") {
-    if (transcripts[videoId]?.length || false) {
-      return sendResponse({ fetch: "success" });
+    if (["pending", "success"].includes(fetchStatuses[videoId])) {
+      return sendResponse({ fetch: fetchStatuses[videoId] });
     }
     try {
+      fetchStatuses[videoId] = "pending";
       const videoUrl = `${requestUrl}?videoId=${videoId}`;
       const result = await fetch(videoUrl);
       if (result.status === 200) {
         let data = await result.json();
         data = data === "No transcript found" ? [] : data;
         transcripts[videoId] = data;
-        return sendResponse({ fetch: "success" });
-      }
-      return sendResponse({ fetch: "failure" });
+        fetchStatuses[videoId] = "success";
+      } else fetchStatuses[videoId] = "failure";
+      chrome.runtime.sendMessage({
+        type: "asyncRes",
+        videoId,
+        status: fetchStatuses[videoId],
+      });
+      return sendResponse({ fetch: fetchStatuses[videoId] });
     } catch (err) {
       console.error(err);
       return sendResponse({ fetch: "failure" });
@@ -24,11 +30,12 @@ const messageHandler = async (message, sender, sendResponse) => {
   }
 
   if (message.type === "sendTranscripts") {
-    if (transcripts[videoId]) {
-      sendResponse({ transcripts: transcripts[videoId] });
-    } else {
-      sendResponse({ transcripts: [] });
-    }
+    console.log(fetchStatuses[videoId]);
+    const videoTranscripts = transcripts[videoId] || []; // Use empty array as default
+    sendResponse({
+      transcripts: videoTranscripts,
+      status: fetchStatuses[videoId],
+    });
   }
 
   sendResponse({ message: "recieved" });

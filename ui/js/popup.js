@@ -1,4 +1,29 @@
 const transcripts = [];
+let vId = undefined;
+let animationInterval;
+
+const handleStatus = (status) => {
+  const statusElement = document.getElementById("search-input");
+  clearInterval(animationInterval); // Clear any existing animation
+
+  if (status === "success") {
+    statusElement.placeholder = "Search";
+  } else if (status === "failure") {
+    statusElement.placeholder = "No subtitles found";
+  } else {
+    statusElement.placeholder = "Fetching subtitles";
+    startAnimation(statusElement);
+  }
+};
+
+function startAnimation(element) {
+  let dotCount = 0;
+  animationInterval = setInterval(() => {
+    element.placeholder = `Fetching subtitles${".".repeat(dotCount % 4)}`;
+    dotCount++;
+  }, 200);
+}
+
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
     var currentTab = tabs[0];
@@ -7,14 +32,25 @@ document.addEventListener("DOMContentLoaded", function () {
       const urlParams = new URLSearchParams(url.search);
       const videoId = urlParams.get("v");
       if (videoId) {
+        vId = videoId;
         chrome.runtime.sendMessage(
           { type: "sendTranscripts", videoId },
           function (response) {
             const transcripts = response.transcripts;
+            handleStatus(response.status);
             console.log(transcripts);
           }
         );
       }
     }
   });
+});
+
+chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
+  if (request.type === "asyncRes") {
+    if (request.videoId === vId) {
+      handleStatus(request.status);
+    }
+  }
+  sendResponse({ status: "completed" });
 });

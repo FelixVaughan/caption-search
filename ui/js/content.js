@@ -1,4 +1,4 @@
-const backkgroundFetchTranscripts = async () => {
+const backgroundFetchTranscripts = async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const videoId = urlParams.get("v");
   if (videoId) {
@@ -17,9 +17,9 @@ const backkgroundFetchTranscripts = async () => {
 
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "checkURL") {
-    backkgroundFetchTranscripts();
+    backgroundFetchTranscripts();
   }
   sendResponse({ status: "completed" });
 });
 
-backkgroundFetchTranscripts();
+backgroundFetchTranscripts();
