@@ -12,7 +12,7 @@ const messageHandler = async (message, sender, sendResponse) => {
       const result = await fetch(videoUrl);
       if (result.status === 200) {
         let data = await result.json();
-        data = data === "No Transcript Found" ? [] : data;
+        data = data === "No transcript found" ? [] : data;
         transcripts[videoId] = data;
         return sendResponse({ fetch: "success" });
       }
@@ -35,6 +35,15 @@ const messageHandler = async (message, sender, sendResponse) => {
   return true; // Keep the message channel open for sendResponse
 };
 
-chrome.runtime.onMessage.addListener(messageHandler);
+const tabEventHandler = (tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete") {
+    //if page has finished loading
+    chrome.tabs.sendMessage(tabId, { type: "checkURL" });
+  }
+};
 
-//todo delete entries from transcripts when tab is closed and transripts grow above a certain size (15)
+chrome.runtime.onMessage.addListener(messageHandler);
+chrome.tabs.onUpdated.addListener(tabEventHandler);
+
+//TODO: delete entries from transcripts when tab is closed and transcripts grow above a certain size (15)
+//TODO: delete entries from transcripts when video is deleted from history
