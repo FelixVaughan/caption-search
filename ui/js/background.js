@@ -38,6 +38,7 @@ const messageHandler = async (message, sender, sendResponse) => {
         type: "asyncRes",
         videoId,
         status: fetchStatuses.get(videoId),
+        transcripts: transcripts.get(videoId) || [],
       });
       return sendResponse({ fetch: fetchStatuses.get(videoId) });
     } catch (err) {

@@ -1,4 +1,4 @@
-const transcripts = [];
+let transcripts = [];
 let vId = undefined;
 let animationInterval;
 
@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.runtime.sendMessage(
           { type: "sendTranscripts", videoId },
           function (response) {
-            const transcripts = response.transcripts;
+            transcripts = response.transcripts;
             handleStatus(response.status);
             console.log(transcripts);
           }
@@ -46,10 +46,11 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 });
 
-chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
-  if (request.type === "asyncRes") {
-    if (request.videoId === vId) {
-      handleStatus(request.status);
+chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
+  if (message.type === "asyncRes") {
+    if (message.videoId === vId) {
+      handleStatus(message.status);
+      transcripts = message.transcripts;
     }
   }
   sendResponse({ status: "completed" });
