@@ -63,3 +63,5 @@ const lambdaHandler = async (event) => {
 module.exports = {
   lambdaHandler,
 };
+
+//strip /n and ♪

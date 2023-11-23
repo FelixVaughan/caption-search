@@ -4,7 +4,7 @@ let fetchStatuses = new Map(); // Initialize fetchStatuses as a Map
 
 const MAX_SIZE = 15;
 
-const enforceMapSizeLimit = (...maps) => {
+const enforceMapSizeCap = (...maps) => {
   maps.forEach((map) => {
     if (map.size > MAX_SIZE) {
       const excess = [...map.keys()].slice(0, map.size - MAX_SIZE);
