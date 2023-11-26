@@ -1,9 +1,9 @@
 class TranscriptController {
   constructor() {
-    this.transcripts = [];
-    this.concatenatedSnippets = "";
     this.concatenationIndexMap = [];
+    this.transcripts = [];
     this.languages = [];
+    this.concatenatedSnippets = "";
     this.selected = undefined;
     this.languageSelectElem = document.getElementById("language-dropdown");
     this.searchBar = document.getElementById("search-input");
@@ -81,8 +81,8 @@ class TranscriptController {
 
     results.forEach((result) => {
       console.log(result);
-      const resultElem = createResultElement(result);
-      resultsContainer.appendChild(resultElem);
+      // const resultElem = createResultElement(result);
+      // resultsContainer.appendChild(resultElem);
     });
   }
 
@@ -118,53 +118,32 @@ class TranscriptController {
     }
   }
 
+  // Function to search for a substring across snippets
   searchSelectedTranscript(substring) {
-    const delimiter = " "; // Use space as a delimiter to simulate continuous text
-    let concatenatedSnippets = "";
-    let indexMapping = [];
+    if (substring === "") return [];
+    let results = [];
+    let searchStartPos = 0;
+    let startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
 
-    // Concatenating snippets with a delimiter
-    this.selected.transcript.forEach((obj, index) => {
-      let snippetText = obj.text;
-      concatenatedSnippets += (index > 0 ? delimiter : "") + snippetText;
-
-      indexMapping.push({
-        startIndex: concatenatedSnippets.length - snippetText.length,
-        endIndex: concatenatedSnippets.length,
-        startTime: obj.start_ms,
-        targetId: obj.target_id,
+    while (startPos !== -1) {
+      const endPos = startPos + substring.length;
+      const mapping = this.concatenationIndexMap.find((mapping) => {
+        const { startIndex, endIndex } = mapping;
+        return startIndex <= startPos && startPos < endIndex;
       });
-    });
-
-    // Function to search for a substring across snippets
-    function searchSubstring(substring) {
-      if (substring === "") return [];
-      let results = [];
-      let searchStartPos = 0;
-      let startPos = concatenatedSnippets.indexOf(substring, searchStartPos);
-
-      while (startPos !== -1) {
-        const endPos = startPos + substring.length;
-        const mapping = indexMapping.find((mapping) => {
-          const { startIndex, endIndex } = mapping;
-          return startIndex <= startPos && startPos < endIndex;
-        });
-        if (mapping) {
-          let result = {
-            startIndex: startPos,
-            endIndex: endPos,
-            time: mapping.startTime,
-          };
-          results.push(result);
-        }
-        // Move search start position past the current found position
-        searchStartPos = startPos + 1;
-        startPos = concatenatedSnippets.indexOf(substring, searchStartPos);
+      if (mapping) {
+        let result = {
+          startIndex: startPos,
+          endIndex: endPos,
+          time: mapping.startTime,
+        };
+        results.push(result);
       }
-      return results;
+      // Move search start position past the current found position
+      searchStartPos = startPos + 1;
+      startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
     }
-
-    return searchSubstring(substring);
+    return results;
   }
 
   getTranscripts() {

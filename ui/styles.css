@@ -5,7 +5,7 @@
 .extension-popup {
   display: flex;
   flex-direction: column;
-  padding: 4px;
+  padding: 12px;
   width: 100%; /* Full width to fill the popup */
 }
 
@@ -37,6 +37,7 @@
 #results-counter {
   margin-left: 5px; /* Space between the button and counter */
   text-wrap: nowrap;
+  font-size: 12px;
 }
 
 #language-dropdown {
@@ -51,7 +52,7 @@
     line-height: 20px;  */
 }
 
-.results-container {
+#results-container {
   display: flex;
   flex-direction: column;
   overflow-y: auto; /* Makes it scrollable */
