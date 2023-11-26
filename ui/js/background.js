@@ -30,7 +30,8 @@ const messageHandler = async (message, sender, sendResponse) => {
         let data = await result.json();
         data = data === "No transcript found" ? [] : data;
         transcripts.set(videoId, data);
-        fetchStatuses.set(videoId, "success"); // Update status in the Map
+        const status = data.length > 0 ? "success" : "empty";
+        fetchStatuses.set(videoId, status); // Update status in the Map
       } else {
         fetchStatuses.set(videoId, "failure"); // Update status in the Map
       }
@@ -51,7 +52,6 @@ const messageHandler = async (message, sender, sendResponse) => {
   }
 
   if (message.type === "sendTranscripts") {
-    console.log(fetchStatuses.get(videoId));
     const videoTranscripts = transcripts.get(videoId) || [];
     sendResponse({
       transcripts: videoTranscripts,

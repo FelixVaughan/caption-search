@@ -47,6 +47,8 @@
     max-width: 90px; 
     margin-left: 5px;
     cursor: pointer;
+    /* text-align: center; 
+    line-height: 20px;  */
 }
 
 .results-container {

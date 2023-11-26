@@ -1,55 +1,170 @@
 class TranscriptController {
   constructor() {
     this.transcripts = [];
+    this.concatenatedSnippets = "";
+    this.concatenationIndexMap = [];
     this.languages = [];
-    this.selectedTranscript = undefined;
+    this.selected = undefined;
+    this.languageSelectElem = document.getElementById("language-dropdown");
+    this.searchBar = document.getElementById("search-input");
+    this.searchButton = document.getElementById("search-button");
   }
 
   setTranscripts(newTranscripts) {
     this.transcripts = newTranscripts;
+    if (newTranscripts.length > 0) {
+      const defaultTranscript = newTranscripts.find((t) => {
+        return t.language.toLowerCase().indexOf("english") != -1;
+      });
+      const language =
+        defaultTranscript?.language || newTranscripts[0].language;
+      this.setSelectedTranscript(language);
+    }
     this.updateLanguages();
-    this.updateLanguageDropdown();
-    this.selectedTranscript = newTranscripts[0] || undefined;
+  }
+
+  setSelectedTranscript(language) {
+    const buildSearchData = () => {
+      const delimiter = " ";
+      this.concatenatedSnippets = "";
+      this.concatenationIndexMap = [];
+      this.selected.transcript.forEach((obj, index) => {
+        let snippetText = obj.text;
+        this.concatenatedSnippets += (index > 0 ? delimiter : "") + snippetText;
+        this.concatenationIndexMap.push({
+          startIndex: this.concatenatedSnippets.length - snippetText.length,
+          endIndex: this.concatenatedSnippets.length,
+          startTime: obj.start_ms,
+          targetId: obj.target_id,
+        });
+      });
+    };
+
+    this.selected = this.transcripts.find((t) => t.language === language);
+    buildSearchData();
+    this.addSearchListeners();
+  }
+
+  addSearchListeners() {
+    const handleSearch = () => {
+      const searchString = this.searchBar.value;
+      const results = this.searchSelectedTranscript(searchString);
+      this.renderResults(results);
+    };
+
+    this.searchBar.addEventListener("keyup", (event) => {
+      if (event.key === "Enter") {
+        handleSearch();
+      }
+    });
+
+    this.searchButton.addEventListener("click", () => {
+      handleSearch();
+    });
+  }
+
+  renderResults(results) {
+    const resultsContainer = document.getElementById("results-container");
+    resultsContainer.innerHTML = "";
+
+    const createResultElement = (result) => {
+      const resultElem = document.createElement("div");
+      resultElem.className = "result";
+      resultElem.innerHTML = `<div class="result-text">${this.concatenatedSnippets.substring(
+        result.startIndex,
+        result.endIndex
+      )}</div><div class="result-time">${this.formatTime(
+        result.time
+      )}</div><div class="result-target-id">${result.targetId}</div>`;
+      return resultElem;
+    };
+
+    results.forEach((result) => {
+      console.log(result);
+      const resultElem = createResultElement(result);
+      resultsContainer.appendChild(resultElem);
+    });
   }
 
   updateLanguages() {
     this.languages = this.transcripts.map((t) => t.language);
+    this.updateLanguageDropdown();
   }
 
   updateLanguageDropdown() {
-    const languageSelectElem = document.getElementById("language-dropdown");
-    if (languageSelectElem) {
-      languageSelectElem.innerHTML = "";
+    const addOptionToDropdown = (language, selectElement) => {
+      const optionElem = document.createElement("option");
+      optionElem.value = language;
+      optionElem.text = language;
+      if (this.selected?.language === language) {
+        optionElem.selected = true;
+      }
+      selectElement.appendChild(optionElem);
+    };
+
+    const addLanguageChangeListener = (selectElement) => {
+      selectElement.addEventListener("change", () => {
+        const selectedLanguage = selectElement.value;
+        this.setSelectedTranscript(selectedLanguage);
+      });
+    };
+
+    if (this.languages.length > 0) {
+      this.languageSelectElem.innerHTML = "";
       this.languages.forEach((language) =>
-        this.addOptionToDropdown(language, languageSelectElem)
+        addOptionToDropdown(language, this.languageSelectElem)
       );
-      this.addLanguageChangeListener(languageSelectElem);
+      addLanguageChangeListener(this.languageSelectElem);
     }
   }
 
-  addOptionToDropdown(language, selectElement) {
-    const optionElem = document.createElement("option");
-    optionElem.value = language;
-    optionElem.text = language;
-    selectElement.appendChild(optionElem);
-  }
+  searchSelectedTranscript(substring) {
+    const delimiter = " "; // Use space as a delimiter to simulate continuous text
+    let concatenatedSnippets = "";
+    let indexMapping = [];
 
-  addLanguageChangeListener(selectElement) {
-    selectElement.addEventListener("change", () => {
-      const selectedLanguage = selectElement.value;
-      this.selectedTranscript = this.transcripts.find(
-        (t) => t.language === selectedLanguage
-      );
-      console.log(this.selectedTranscript);
+    // Concatenating snippets with a delimiter
+    this.selected.transcript.forEach((obj, index) => {
+      let snippetText = obj.text;
+      concatenatedSnippets += (index > 0 ? delimiter : "") + snippetText;
+
+      indexMapping.push({
+        startIndex: concatenatedSnippets.length - snippetText.length,
+        endIndex: concatenatedSnippets.length,
+        startTime: obj.start_ms,
+        targetId: obj.target_id,
+      });
     });
-  }
 
-  search(substring) {
-    const results = this.selectedTranscript.transcript.filter((subtitle) =>
-      subtitle.text.toLowerCase().includes(substring.toLowerCase())
-    );
-    console.log(results);
-    return results;
+    // Function to search for a substring across snippets
+    function searchSubstring(substring) {
+      if (substring === "") return [];
+      let results = [];
+      let searchStartPos = 0;
+      let startPos = concatenatedSnippets.indexOf(substring, searchStartPos);
+
+      while (startPos !== -1) {
+        const endPos = startPos + substring.length;
+        const mapping = indexMapping.find((mapping) => {
+          const { startIndex, endIndex } = mapping;
+          return startIndex <= startPos && startPos < endIndex;
+        });
+        if (mapping) {
+          let result = {
+            startIndex: startPos,
+            endIndex: endPos,
+            time: mapping.startTime,
+          };
+          results.push(result);
+        }
+        // Move search start position past the current found position
+        searchStartPos = startPos + 1;
+        startPos = concatenatedSnippets.indexOf(substring, searchStartPos);
+      }
+      return results;
+    }
+
+    return searchSubstring(substring);
   }
 
   getTranscripts() {
@@ -63,17 +178,15 @@ class TranscriptController {
         element.placeholder = `Fetching subtitles${".".repeat(dotCount++ % 4)}`;
       }, 200);
     };
-
     clearInterval(animationInterval);
-    const statusElement = document.getElementById("search-input");
-    statusElement.placeholder =
-      status === "success"
-        ? "Search"
-        : status === "failure"
-        ? "No subtitles found"
-        : "Fetching subtitles";
-    if (status !== "success") {
-      startAnimation(statusElement);
+    if (status === "success") {
+      this.searchBar.placeholder = "Search";
+    } else if (["failure", "empty"].includes(status)) {
+      this.searchBar.placeholder = "No subtitles found";
+    } else {
+      // Only start the animation if the status is not 'success' or 'failure'
+      this.searchBar.placeholder = "Fetching subtitles";
+      startAnimation(this.searchBar);
     }
   }
 }
@@ -109,7 +222,10 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
     if (message.videoId === vId) {
       controller.setTranscripts(message.transcripts);
       controller.handleStatus(message.status);
+      console.log(controller);
     }
   }
   sendResponse({ status: "completed" });
 });
+
+//test video https://www.youtube.com/watch?v=WbliHNs4q14

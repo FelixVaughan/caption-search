@@ -15,6 +15,17 @@ const backgroundFetchTranscripts = async () => {
   }
 };
 
+function setYouTubeVideoTime(milliseconds) {
+  var videoPlayer = document.querySelector("video");
+
+  if (videoPlayer) {
+    // Convert milliseconds to seconds and set the current time
+    videoPlayer.currentTime = milliseconds / 1000;
+  } else {
+    console.error("YouTube video player not found");
+  }
+}
+
 chrome.runtime.onMessage.addListener(function (request, sender, sendResponse) {
   if (request.type === "checkURL") {
     backgroundFetchTranscripts();
