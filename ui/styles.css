@@ -52,6 +52,35 @@
     line-height: 20px;  */
 }
 
+.result-item-container {
+  background-color: #FFDD57;
+  color: black;
+  padding: 5px;
+  margin: 1px;
+  cursor: pointer;
+  font-size: 11px;
+  min-height: 30px;
+  max-height: 50px;
+  /* border-bottom: 1px solid #ccc; */
+  /* display: flex;  */
+  /* flex-direction: column; */
+}
+
+.result-item-container:hover {
+  background-color: #FFC107;
+}
+
+.highlighted-item{
+  background-color: #0151ad;
+  color: white;
+  padding: 2px;
+  font-weight: 600;
+}
+
+.result-time{
+  /* flex: 2; */
+}
+
 #results-container {
   display: flex;
   flex-direction: column;

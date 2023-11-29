@@ -8,6 +8,7 @@ class TranscriptController {
     this.languageSelectElem = document.getElementById("language-dropdown");
     this.searchBar = document.getElementById("search-input");
     this.searchButton = document.getElementById("search-button");
+    this.MAX_HIGHLIGHT_LENGTH = 200;
   }
 
   setTranscripts(newTranscripts) {
@@ -67,22 +68,56 @@ class TranscriptController {
     const resultsContainer = document.getElementById("results-container");
     resultsContainer.innerHTML = "";
 
+    const formatMilliseconds = (milliseconds) => {
+      const totalSeconds = Math.floor(milliseconds / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const secondsStr = String(seconds).padStart(2, "0");
+      let timeString = `${minutes}:${secondsStr}`;
+
+      if (hours > 0) {
+        const minutesStr = String(minutes).padStart(2, "0");
+        timeString = `${hours}:${minutesStr}:${secondsStr}`;
+      }
+
+      return timeString;
+    };
+
+    const createHighlightFragment = (startIndex, endIndex) => {
+      let maxLengthExceeded = endIndex - startIndex > this.MAX_HIGHLIGHT_LENGTH;
+      let result = {
+        startIndex,
+        endIndex,
+        higthlightStart: startIndex,
+        higthlightEnd: endIndex,
+        ellipsis: maxLengthExceeded,
+      };
+
+      if (maxLengthExceeded) {
+        result = {
+          ...result,
+          endIndex: startIndex + this.MAX_HIGHLIGHT_LENGTH,
+          highlightEnd: startIndex + this.MAX_HIGHLIGHT_LENGTH,
+        };
+      }
+    };
+
     const createResultElement = (result) => {
       const resultElem = document.createElement("div");
-      resultElem.className = "result";
-      resultElem.innerHTML = `<div class="result-text">${this.concatenatedSnippets.substring(
+      resultElem.className = "result-item-container";
+      resultElem.innerHTML = `<span class="highlighted-item">${this.concatenatedSnippets.substring(
         result.startIndex,
         result.endIndex
-      )}</div><div class="result-time">${this.formatTime(
-        result.time
-      )}</div><div class="result-target-id">${result.targetId}</div>`;
+      )}</span><span="result-time">${formatMilliseconds(result.time)}</span>`;
+
       return resultElem;
     };
 
     results.forEach((result) => {
-      console.log(result);
-      // const resultElem = createResultElement(result);
-      // resultsContainer.appendChild(resultElem);
+      const resultElem = createResultElement(result);
+      resultsContainer.appendChild(resultElem);
     });
   }
 
