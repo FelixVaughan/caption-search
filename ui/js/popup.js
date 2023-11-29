@@ -64,9 +64,15 @@ class TranscriptController {
     });
   }
 
-  renderResults(results) {
-    const resultsContainer = document.getElementById("results-container");
-    resultsContainer.innerHTML = "";
+  createHighlightedElement = (result) => {
+    let { startIndex, endIndex } = result;
+    if (startIndex >= endIndex) return null;
+    const findNearestSpace = (index, text, searchLeft = false) => {
+      while (index >= 0 && index < text.length && text[index] !== " ") {
+        index += searchLeft ? -1 : 1;
+      }
+      return index >= 0 && index < text.length ? index : -1;
+    };
 
     const formatMilliseconds = (milliseconds) => {
       const totalSeconds = Math.floor(milliseconds / 1000);
@@ -85,38 +91,64 @@ class TranscriptController {
       return timeString;
     };
 
-    const createHighlightFragment = (startIndex, endIndex) => {
-      let maxLengthExceeded = endIndex - startIndex > this.MAX_HIGHLIGHT_LENGTH;
-      let result = {
-        startIndex,
-        endIndex,
-        higthlightStart: startIndex,
-        higthlightEnd: endIndex,
-        ellipsis: maxLengthExceeded,
-      };
+    const highlightLength = endIndex - startIndex;
+    const remainingLength = this.MAX_HIGHLIGHT_LENGTH - highlightLength;
+    if (remainingLength <= 0) {
+      endIndex = startIndex + this.MAX_HIGHLIGHT_LENGTH;
+    }
+    const extraLength = Math.floor(
+      (this.MAX_HIGHLIGHT_LENGTH - highlightLength) / 2
+    );
 
-      if (maxLengthExceeded) {
-        result = {
-          ...result,
-          endIndex: startIndex + this.MAX_HIGHLIGHT_LENGTH,
-          highlightEnd: startIndex + this.MAX_HIGHLIGHT_LENGTH,
-        };
-      }
-    };
+    const startBoundary = findNearestSpace(
+      startIndex - extraLength,
+      this.concatenatedSnippets
+    );
+    const endBoundary = findNearestSpace(
+      endIndex + extraLength,
+      this.concatenatedSnippets,
+      true
+    );
+    const snippet = this.concatenatedSnippets
+      .substring(startBoundary, endBoundary)
+      .trim();
 
-    const createResultElement = (result) => {
-      const resultElem = document.createElement("div");
-      resultElem.className = "result-item-container";
-      resultElem.innerHTML = `<span class="highlighted-item">${this.concatenatedSnippets.substring(
-        result.startIndex,
-        result.endIndex
-      )}</span><span="result-time">${formatMilliseconds(result.time)}</span>`;
+    const highlightSlice = this.concatenatedSnippets.substring(
+      startIndex,
+      endIndex
+    );
 
-      return resultElem;
-    };
+    let formatted = snippet
+      .replace(
+        highlightSlice,
+        `<span class="highlighted-item">${highlightSlice}</span>`
+      )
+      .concat(
+        `<span class="result-time">${formatMilliseconds(result.time)}</span>`
+      );
+    const snippetElem = document.createElement("div");
+    snippetElem.className = "result-item-container";
+    snippetElem.innerHTML = formatted;
+    snippetElem.addEventListener("click", () => {
+      chrome.tabs.sendMessage(
+        currentTab.id,
+        {
+          type: "seekTo",
+          time: Number(result.time),
+        },
+        function (response) {
+          console.log(response);
+        }
+      );
+    });
+    return snippetElem;
+  };
 
+  renderResults(results) {
+    const resultsContainer = document.getElementById("results-container");
+    resultsContainer.innerHTML = "";
     results.forEach((result) => {
-      const resultElem = createResultElement(result);
+      const resultElem = this.createHighlightedElement(result);
       resultsContainer.appendChild(resultElem);
     });
   }
@@ -208,10 +240,11 @@ class TranscriptController {
 let animationInterval;
 const controller = new TranscriptController();
 let vId = undefined;
+let currentTab = undefined;
 
 document.addEventListener("DOMContentLoaded", function () {
   chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-    var currentTab = tabs[0];
+    currentTab = tabs[0];
     if (currentTab) {
       const url = new URL(currentTab.url);
       const urlParams = new URLSearchParams(url.search);
