@@ -1,0 +1,43 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+        "name": "Attach to SAM Local",
+        "type": "node",
+        "request": "attach",
+        "port": 5858,
+        "address": "localhost",
+        "localRoot": "${workspaceFolder}/lambda/captions-lambda",
+        "remoteRoot": "/var/task",
+        "protocol": "inspector",
+        // "stopOnEntry": false,
+    },
+    {
+      "type": "aws-sam",
+      "request": "direct-invoke",
+      "name": "CaptionsFunction",
+      "invokeTarget": {
+        "target": "template",
+        "templatePath": "${workspaceFolder}/lambda/template.yaml",
+        "logicalId": "CaptionsFunction"
+      },
+      "api": {
+        "path": "/",
+        "httpMethod": "get",
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Headers": "Content-Type",
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "OPTIONS,GET"
+        },
+        "payload": {
+          "json": {
+            "queryStringParameters": {
+              "videoId": "ZVdXNn5QK6k"
+            }
+          }
+        },
+      }
+    }
+  ]
+}

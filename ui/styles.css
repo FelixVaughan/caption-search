@@ -24,6 +24,11 @@
   border-right: none; /* Removes the right border to integrate with the button */
 }
 
+#search-input:focus {
+    outline: none; 
+    border: 2px solid #ccc; 
+}
+
 #search-button {
   width: 50px; /* Fixed width for the button */
   background-color: green;
@@ -32,6 +37,10 @@
   padding: 5px 10px;
   cursor: pointer;
   outline: none; /* Removes the outline to integrate with the search bar */
+}
+
+#search-button:active {
+  background-color: yellowgreen;
 }
 
 #results-counter {
@@ -51,6 +60,12 @@
     /* text-align: center; 
     line-height: 20px;  */
 }
+
+#language-dropdown:hover {
+    outline: none;  /* Removes the default focus outline */
+    background-color: #d3d3d3; /* Light grey */
+}
+
 
 .result-item-container {
   background-color: #FFDD57;
@@ -77,8 +92,9 @@
   font-weight: 600;
 }
 
+
 .result-time{
-  /* flex: 2; */
+  float: right;
 }
 
 #results-container {
@@ -88,3 +104,7 @@
   max-height: 300px; /* Limits the height of the results container */
 }
 
+.selected-item {
+  background-color: #FFC107; /* or any other color that stands out */
+  color: white;
+}

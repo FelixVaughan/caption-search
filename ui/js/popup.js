@@ -1,13 +1,16 @@
 class TranscriptController {
   constructor() {
-    this.concatenationIndexMap = [];
     this.transcripts = [];
     this.languages = [];
+    this.concatenationIndexMap = [];
     this.concatenatedSnippets = "";
     this.selected = undefined;
-    this.languageSelectElem = document.getElementById("language-dropdown");
+    this.resultIndex = -1;
     this.searchBar = document.getElementById("search-input");
     this.searchButton = document.getElementById("search-button");
+    this.resultsCounter = document.getElementById("results-counter");
+    this.resultsContainer = document.getElementById("results-container");
+    this.languageSelectElem = document.getElementById("language-dropdown");
     this.MAX_HIGHLIGHT_LENGTH = 200;
   }
 
@@ -62,16 +65,53 @@ class TranscriptController {
     this.searchButton.addEventListener("click", () => {
       handleSearch();
     });
+
+    document.addEventListener("keydown", this.handleKeyNavigation.bind(this));
   }
 
-  createHighlightedElement = (result) => {
-    let { startIndex, endIndex } = result;
-    if (startIndex >= endIndex) return null;
-    const findNearestSpace = (index, text, searchLeft = false) => {
-      while (index >= 0 && index < text.length && text[index] !== " ") {
-        index += searchLeft ? -1 : 1;
+  handleKeyNavigation(event) {
+    const results = Array.from(
+      this.resultsContainer.getElementsByClassName("result-item-container")
+    );
+    if (!results.length) return;
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      // Remove 'selected-item' class from the previously selected element
+      if (this.resultIndex !== -1) {
+        results[this.resultIndex].classList.remove("selected-item");
       }
-      return index >= 0 && index < text.length ? index : -1;
+
+      // Determine the direction and update the selectedIndex
+      this.resultIndex += event.key === "ArrowDown" ? 1 : -1;
+
+      // Wrap around if out of bounds
+      if (this.resultIndex < 0) {
+        this.resultIndex = results.length - 1; // Wrap to last item
+      } else if (this.resultIndex >= results.length) {
+        this.resultIndex = 0; // Wrap to first item
+      }
+
+      // Add 'selected-item' class to the new selected element
+      results[this.resultIndex].classList.add("selected-item");
+      // Scroll selected element into view
+      results[this.resultIndex].scrollIntoView({
+        block: "nearest",
+        behavior: "smooth",
+      });
+    } else if (event.key === "Enter" && this.resultIndex >= 0) {
+      results[this.resultIndex].click();
+    }
+    this.resultsCounter.innerHTML = `${this.resultIndex + 1} of ${
+      results.length
+    }`;
+  }
+
+  createHighlightedElement = (snippet, start, end, time, index) => {
+    const seekCallback = () => {
+      chrome.tabs.sendMessage(currentTab.id, {
+        type: "seekTo",
+        time: Number(time),
+      });
     };
 
     const formatMilliseconds = (milliseconds) => {
@@ -91,14 +131,41 @@ class TranscriptController {
       return timeString;
     };
 
+    const prefix = snippet.substring(0, start - 1);
+    const suffix = snippet.substring(end - 1);
+    const highlightedSlice = snippet.substring(start - 1, end - 1);
+    const highlightedSnippet =
+      prefix +
+      `<span class="highlighted-item">${highlightedSlice}</span>` +
+      suffix +
+      `<span class="result-time">${formatMilliseconds(time)}</span>`;
+
+    const snippetElem = document.createElement("div");
+    snippetElem.className = "result-item-container";
+    snippetElem.innerHTML = highlightedSnippet;
+    snippetElem.addEventListener("click", () => {
+      this.resultIndex = index;
+      seekCallback();
+    });
+    return snippetElem;
+  };
+
+  highlightedSnippet = (result, index) => {
+    let { startIndex, endIndex } = result;
+    if (startIndex >= endIndex) return null;
+    const findNearestSpace = (index, text, searchLeft = false) => {
+      while (index >= 0 && index < text.length && text[index] !== " ") {
+        index += searchLeft ? -1 : 1;
+      }
+      return index >= 0 && index < text.length ? index : -1;
+    };
+
     const highlightLength = endIndex - startIndex;
     const remainingLength = this.MAX_HIGHLIGHT_LENGTH - highlightLength;
     if (remainingLength <= 0) {
       endIndex = startIndex + this.MAX_HIGHLIGHT_LENGTH;
     }
-    const extraLength = Math.floor(
-      (this.MAX_HIGHLIGHT_LENGTH - highlightLength) / 2
-    );
+    const extraLength = Math.floor(remainingLength / 2);
 
     const startBoundary = findNearestSpace(
       startIndex - extraLength,
@@ -109,48 +176,32 @@ class TranscriptController {
       this.concatenatedSnippets,
       true
     );
-    const snippet = this.concatenatedSnippets
-      .substring(startBoundary, endBoundary)
-      .trim();
-
-    const highlightSlice = this.concatenatedSnippets.substring(
-      startIndex,
-      endIndex
+    let snippet = this.concatenatedSnippets.substring(
+      startBoundary,
+      endBoundary
     );
 
-    let formatted = snippet
-      .replace(
-        highlightSlice,
-        `<span class="highlighted-item">${highlightSlice}</span>`
-      )
-      .concat(
-        `<span class="result-time">${formatMilliseconds(result.time)}</span>`
-      );
-    const snippetElem = document.createElement("div");
-    snippetElem.className = "result-item-container";
-    snippetElem.innerHTML = formatted;
-    snippetElem.addEventListener("click", () => {
-      chrome.tabs.sendMessage(
-        currentTab.id,
-        {
-          type: "seekTo",
-          time: Number(result.time),
-        },
-        function (response) {
-          console.log(response);
-        }
-      );
-    });
-    return snippetElem;
+    //get relative highlighh start and end index
+    let relativeStartIndex = startIndex - startBoundary;
+    let relativeEndIndex = endIndex - startBoundary;
+    snippet = snippet.trim();
+    const highlightedSnippet = this.createHighlightedElement(
+      snippet,
+      relativeStartIndex,
+      relativeEndIndex,
+      result.time,
+      index
+    );
+    return highlightedSnippet;
   };
 
   renderResults(results) {
-    const resultsContainer = document.getElementById("results-container");
-    resultsContainer.innerHTML = "";
-    results.forEach((result) => {
-      const resultElem = this.createHighlightedElement(result);
-      resultsContainer.appendChild(resultElem);
+    this.resultsContainer.innerHTML = "";
+    results.forEach((result, index) => {
+      const resultElem = this.highlightedSnippet(result, index);
+      this.resultsContainer.appendChild(resultElem);
     });
+    this.resultsCounter.innerHTML = `${this.resultIndex + 1} results`;
   }
 
   updateLanguages() {
@@ -213,8 +264,9 @@ class TranscriptController {
     return results;
   }
 
-  getTranscripts() {
-    return this.transcripts;
+  digestMessage(message) {
+    this.setTranscripts(message.transcripts);
+    this.handleStatus(message.status);
   }
 
   handleStatus(status) {
@@ -254,9 +306,9 @@ document.addEventListener("DOMContentLoaded", function () {
         chrome.runtime.sendMessage(
           { type: "sendTranscripts", videoId },
           function (response) {
-            controller.setTranscripts(response.transcripts);
-            controller.handleStatus(response.status);
-            console.log(controller);
+            controller.digestMessage(response);
+            // controller.setTranscripts(response.transcripts);
+            // controller.handleStatus(response.status);
           }
         );
       }
@@ -267,9 +319,9 @@ document.addEventListener("DOMContentLoaded", function () {
 chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === "asyncRes") {
     if (message.videoId === vId) {
-      controller.setTranscripts(message.transcripts);
-      controller.handleStatus(message.status);
-      console.log(controller);
+      controller.digestMessage(message);
+      // controller.setTranscripts(message.transcripts);
+      // controller.handleStatus(message.status);
     }
   }
   sendResponse({ status: "completed" });
