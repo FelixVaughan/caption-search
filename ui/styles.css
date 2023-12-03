@@ -1,3 +1,9 @@
+:root {
+  --highlight-blue: #0151ad;
+  --select-yellow: #FFC107;
+  --white: #ffffff;
+}
+
 *, *:before, *:after {
   box-sizing: border-box;
 }
@@ -79,8 +85,6 @@
     max-width: 90px; 
     margin-left: 5px;
     cursor: pointer;
-    /* text-align: center; 
-    line-height: 20px;  */
 }
 
 .result-item-container {
@@ -96,18 +100,17 @@
 }
 
 .result-item-container:hover {
-  background-color: #FFC107;
+  background-color: var(--select-yellow);
 }
 
-#language-dropdown:hover {
+#language-dropdown:hover, #language-dropdown:focus {
     outline: none;  /* Removes the default focus outline */
     background-color: #d3d3d3; /* Light grey */
 }
 
 
-
 .highlighted-item{
-  background-color: #0151ad;
+  background-color: var(--highlight-blue);
   color: white;
   padding: 2px;
   font-weight: 600;
@@ -126,12 +129,12 @@
 }
 
 .selected-item {
-  background-color: #FFC107; /* or any other color that stands out */
+  background-color: var(--select-yellow); /* or any other color that stands out */
   color: white;
 }
 
 #case-toggle {
-  background-color: #ffffff; /* Match the background color with your design */
+  background-color: white; /* Match the background color with your design */
   border: 1px solid #ccc; /* Match the border style with your design */
   margin-left: 5px; /* Add some space between the toggle and the "Go" button */
   color: #888;
@@ -144,7 +147,6 @@
 }
 
 #search-input {
-  /* ... existing styles ... */
   padding-right: 30px; /* Make room for the icon inside the input */
 }
 
@@ -162,5 +164,6 @@
 
 
 #case-toggle.active-case {
-  color: #0151ad; /* The color you want when the toggle is active */
+  color: var(--highlight-blue); /* The color you want when the toggle is active */
+  font-weight: 400;
 }

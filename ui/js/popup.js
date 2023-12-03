@@ -20,6 +20,7 @@ class TranscriptController {
   handleCaseToggle = () => {
     this.caseSensitive = !this.caseSensitive;
     this.caseToggle.classList.toggle("active-case");
+    this.searchButton.click();
   };
   setTranscripts(newTranscripts) {
     this.transcripts = newTranscripts;
@@ -288,33 +289,6 @@ class TranscriptController {
     return results;
   }
 
-  // searchSelectedTranscript(substring) {
-  //   if (substring === "") return [];
-  //   let results = [];
-  //   let searchStartPos = 0;
-  //   let startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
-  //   console.log(this.caseSensitive);
-  //   while (startPos !== -1) {
-  //     const endPos = startPos + substring.length;
-  //     const mapping = this.concatenationIndexMap.find((mapping) => {
-  //       const { startIndex, endIndex } = mapping;
-  //       return startIndex <= startPos && startPos < endIndex;
-  //     });
-  //     if (mapping) {
-  //       let result = {
-  //         startIndex: startPos,
-  //         endIndex: endPos,
-  //         time: mapping.startTime,
-  //       };
-  //       results.push(result);
-  //     }
-  //     // Move search start position past the current found position
-  //     searchStartPos = startPos + 1;
-  //     startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
-  //   }
-  //   return results;
-  // }
-
   digestMessage(message) {
     this.setTranscripts(message.transcripts);
     this.handleStatus(message.status);
@@ -377,5 +351,4 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 //test video https://www.youtube.com/watch?v=WbliHNs4q14
 
 //todo
-//1. capital insensitive search
-//2. vertical overflow bug
+//1. vertical overflow bug
