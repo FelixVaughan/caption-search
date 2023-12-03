@@ -6,14 +6,21 @@ class TranscriptController {
     this.concatenatedSnippets = "";
     this.selected = undefined;
     this.resultIndex = -1;
+    this.MAX_HIGHLIGHT_LENGTH = 200;
     this.searchBar = document.getElementById("search-input");
     this.searchButton = document.getElementById("search-button");
     this.resultsCounter = document.getElementById("results-counter");
     this.resultsContainer = document.getElementById("results-container");
     this.languageSelectElem = document.getElementById("language-dropdown");
-    this.MAX_HIGHLIGHT_LENGTH = 200;
+    this.caseToggle = document.getElementById("case-toggle");
+    this.caseSensitive = false;
+    this.caseToggle.addEventListener("click", this.handleCaseToggle);
   }
 
+  handleCaseToggle = () => {
+    this.caseSensitive = !this.caseSensitive;
+    this.caseToggle.classList.toggle("active-case");
+  };
   setTranscripts(newTranscripts) {
     this.transcripts = newTranscripts;
     if (newTranscripts.length > 0) {
@@ -140,7 +147,7 @@ class TranscriptController {
 
       return timeString;
     };
-
+    end = start === 0 && end + 1 < snippet.length ? end + 1 : end;
     const prefix = snippet.substring(0, start - 1);
     const suffix = snippet.substring(end - 1);
     const highlightedSlice = snippet.substring(start - 1, end - 1);
@@ -163,8 +170,11 @@ class TranscriptController {
   highlightedSnippet = (result, index) => {
     let { startIndex, endIndex } = result;
     if (startIndex >= endIndex) return null;
-    const findNearestSpace = (index, text, searchLeft = false) => {
-      while (index >= 0 && index < text.length && text[index] !== " ") {
+    const nearestSpace = (index, text, searchLeft = false) => {
+      //check and set index if out of bounds
+      if (index < 0) index = 0;
+      if (index >= text.length) index = text.length - 1;
+      while (index > 0 && index < text.length && text[index] !== " ") {
         index += searchLeft ? -1 : 1;
       }
       return index >= 0 && index < text.length ? index : -1;
@@ -177,11 +187,11 @@ class TranscriptController {
     }
     const extraLength = Math.floor(remainingLength / 2);
 
-    const startBoundary = findNearestSpace(
+    const startBoundary = nearestSpace(
       startIndex - extraLength,
       this.concatenatedSnippets
     );
-    const endBoundary = findNearestSpace(
+    const endBoundary = nearestSpace(
       endIndex + extraLength,
       this.concatenatedSnippets,
       true
@@ -251,8 +261,12 @@ class TranscriptController {
     if (substring === "") return [];
     let results = [];
     let searchStartPos = 0;
-    let startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
-
+    let searchedSnippets = this.concatenatedSnippets;
+    if (!this.caseSensitive) {
+      substring = substring.toLowerCase();
+      searchedSnippets = searchedSnippets.toLowerCase();
+    }
+    let startPos = searchedSnippets.indexOf(substring, searchStartPos);
     while (startPos !== -1) {
       const endPos = startPos + substring.length;
       const mapping = this.concatenationIndexMap.find((mapping) => {
@@ -269,10 +283,37 @@ class TranscriptController {
       }
       // Move search start position past the current found position
       searchStartPos = startPos + 1;
-      startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
+      startPos = searchedSnippets.indexOf(substring, searchStartPos);
     }
     return results;
   }
+
+  // searchSelectedTranscript(substring) {
+  //   if (substring === "") return [];
+  //   let results = [];
+  //   let searchStartPos = 0;
+  //   let startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
+  //   console.log(this.caseSensitive);
+  //   while (startPos !== -1) {
+  //     const endPos = startPos + substring.length;
+  //     const mapping = this.concatenationIndexMap.find((mapping) => {
+  //       const { startIndex, endIndex } = mapping;
+  //       return startIndex <= startPos && startPos < endIndex;
+  //     });
+  //     if (mapping) {
+  //       let result = {
+  //         startIndex: startPos,
+  //         endIndex: endPos,
+  //         time: mapping.startTime,
+  //       };
+  //       results.push(result);
+  //     }
+  //     // Move search start position past the current found position
+  //     searchStartPos = startPos + 1;
+  //     startPos = this.concatenatedSnippets.indexOf(substring, searchStartPos);
+  //   }
+  //   return results;
+  // }
 
   digestMessage(message) {
     this.setTranscripts(message.transcripts);

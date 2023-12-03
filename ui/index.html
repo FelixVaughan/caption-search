@@ -12,15 +12,24 @@
     </head>
     <body>
         <div class="extension-popup">
+
             <div class="top-container">
-                <input type="text" id="search-input"
-                    placeholder="No Captions Found...">
-                <button id="search-button">Go</button>
+                <!-- Wrap input and icon in a div -->
+                <div class="search-wrapper">
+                    <input type="text" id="search-input"
+                        placeholder="No Captions Found...">
+                    <!-- Add the toggle icon inside the search input -->
+                    <button type="button" title="Match Case" id="case-toggle">
+                        Aa
+                    </button>
+                </div>
+                <button type="button" id="search-button">Go</button>
                 <span id="results-counter">No Results</span>
                 <select title="Choose your language" id="language-dropdown">
                     <option value="none" selected>NA</option>
                     <!-- Options dynamically populated -->
                 </select>
+                <!-- ... -->
             </div>
             <div id="results-container">
                 <!-- Results dynamically populated -->

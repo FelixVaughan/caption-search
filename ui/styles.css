@@ -129,3 +129,38 @@
   background-color: #FFC107; /* or any other color that stands out */
   color: white;
 }
+
+#case-toggle {
+  background-color: #ffffff; /* Match the background color with your design */
+  border: 1px solid #ccc; /* Match the border style with your design */
+  margin-left: 5px; /* Add some space between the toggle and the "Go" button */
+  color: #888;
+}
+
+
+.search-wrapper {
+  position: relative;
+  flex-grow: 1; /* Allows the input to grow and fill the space */
+}
+
+#search-input {
+  /* ... existing styles ... */
+  padding-right: 30px; /* Make room for the icon inside the input */
+}
+
+#case-toggle {
+  position: absolute; /* Position the button inside the search-wrapper */
+  right: 0; /* Align to the right */
+  top: 0; /* Align to the top */
+  border: none; /* No border for the toggle button */
+  background: none; /* No background to blend in with the input */
+  padding: 5px; /* Padding to match the input field */
+  cursor: pointer;
+}
+
+/* Adjust the icon size and alignment if necessary */
+
+
+#case-toggle.active-case {
+  color: #0151ad; /* The color you want when the toggle is active */
+}
