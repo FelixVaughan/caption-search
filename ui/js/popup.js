@@ -69,41 +69,43 @@ class TranscriptController {
     document.addEventListener("keydown", this.handleKeyNavigation.bind(this));
   }
 
-  handleKeyNavigation(event) {
-    const results = Array.from(
-      this.resultsContainer.getElementsByClassName("result-item-container")
-    );
-    if (!results.length) return;
-
-    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
-      // Remove 'selected-item' class from the previously selected element
-      if (this.resultIndex !== -1) {
-        results[this.resultIndex].classList.remove("selected-item");
-      }
-
-      // Determine the direction and update the selectedIndex
-      this.resultIndex += event.key === "ArrowDown" ? 1 : -1;
-
-      // Wrap around if out of bounds
-      if (this.resultIndex < 0) {
-        this.resultIndex = results.length - 1; // Wrap to last item
-      } else if (this.resultIndex >= results.length) {
-        this.resultIndex = 0; // Wrap to first item
-      }
-
-      // Add 'selected-item' class to the new selected element
-      results[this.resultIndex].classList.add("selected-item");
-      // Scroll selected element into view
-      results[this.resultIndex].scrollIntoView({
-        block: "nearest",
-        behavior: "smooth",
-      });
-    } else if (event.key === "Enter" && this.resultIndex >= 0) {
-      results[this.resultIndex].click();
+  handleIndexChange(newIndex) {
+    const results = this.getHighlightedElements();
+    if (this.resultIndex !== -1) {
+      results[this.resultIndex].classList.remove("selected-item");
     }
+    this.resultIndex = newIndex;
+    if (this.resultIndex < 0) {
+      this.resultIndex = results.length - 1; // Wrap to last item
+    } else if (this.resultIndex >= results.length) {
+      this.resultIndex = 0; // Wrap to first item
+    }
+    results[this.resultIndex].classList.add("selected-item");
+    results[this.resultIndex].scrollIntoView({
+      block: "nearest",
+      behavior: "smooth",
+    });
     this.resultsCounter.innerHTML = `${this.resultIndex + 1} of ${
       results.length
     }`;
+  }
+
+  getHighlightedElements() {
+    return Array.from(
+      this.resultsContainer.getElementsByClassName("result-item-container")
+    );
+  }
+
+  handleKeyNavigation(event) {
+    const results = this.getHighlightedElements();
+    if (!results.length) return;
+
+    if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+      let newIndex = this.resultIndex + (event.key === "ArrowDown" ? 1 : -1);
+      this.handleIndexChange(newIndex);
+    } else if (event.key === "Enter" && this.resultIndex >= 0) {
+      results[this.resultIndex].click();
+    }
   }
 
   createHighlightedElement = (snippet, start, end, time, index) => {
@@ -144,7 +146,7 @@ class TranscriptController {
     snippetElem.className = "result-item-container";
     snippetElem.innerHTML = highlightedSnippet;
     snippetElem.addEventListener("click", () => {
-      this.resultIndex = index;
+      this.handleIndexChange(index);
       seekCallback();
     });
     return snippetElem;
@@ -201,7 +203,6 @@ class TranscriptController {
       const resultElem = this.highlightedSnippet(result, index);
       this.resultsContainer.appendChild(resultElem);
     });
-    this.resultsCounter.innerHTML = `${this.resultIndex + 1} results`;
   }
 
   updateLanguages() {
@@ -307,8 +308,6 @@ document.addEventListener("DOMContentLoaded", function () {
           { type: "sendTranscripts", videoId },
           function (response) {
             controller.digestMessage(response);
-            // controller.setTranscripts(response.transcripts);
-            // controller.handleStatus(response.status);
           }
         );
       }
@@ -320,8 +319,6 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   if (message.type === "asyncRes") {
     if (message.videoId === vId) {
       controller.digestMessage(message);
-      // controller.setTranscripts(message.transcripts);
-      // controller.handleStatus(message.status);
     }
   }
   sendResponse({ status: "completed" });
