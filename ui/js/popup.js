@@ -71,7 +71,11 @@ class TranscriptController {
 
   handleIndexChange(newIndex) {
     const results = this.getHighlightedElements();
-    if (this.resultIndex !== -1) {
+    if (
+      this.resultIndex !== -1 &&
+      this.resultIndex < results.length &&
+      this.resultIndex != newIndex
+    ) {
       results[this.resultIndex].classList.remove("selected-item");
     }
     this.resultIndex = newIndex;
@@ -85,8 +89,12 @@ class TranscriptController {
       block: "nearest",
       behavior: "smooth",
     });
+    this.renderResultsIndex();
+  }
+
+  renderResultsIndex() {
     this.resultsCounter.innerHTML = `${this.resultIndex + 1} of ${
-      results.length
+      this.getHighlightedElements().length
     }`;
   }
 
@@ -203,6 +211,7 @@ class TranscriptController {
       const resultElem = this.highlightedSnippet(result, index);
       this.resultsContainer.appendChild(resultElem);
     });
+    this.renderResultsIndex();
   }
 
   updateLanguages() {
@@ -325,3 +334,7 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 });
 
 //test video https://www.youtube.com/watch?v=WbliHNs4q14
+
+//todo
+//1. capital insensitive search
+//2. vertical overflow bug

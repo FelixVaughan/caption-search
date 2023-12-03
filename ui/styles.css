@@ -2,6 +2,28 @@
   box-sizing: border-box;
 }
 
+/* Width and height of the entire scrollbar */
+::-webkit-scrollbar {
+  width: 8px;  /* for vertical scrollbars */
+}
+
+/* Track of the scrollbar, which includes the background */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; /* color of the tracking area */
+  border-radius: 10px;
+}
+
+/* Handle of the scrollbar */
+::-webkit-scrollbar-thumb {
+  background: #888; /* color of the scroll thumb */
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #555; /* color of the scroll thumb on hover */
+}
+
 .extension-popup {
   display: flex;
   flex-direction: column;
@@ -61,12 +83,6 @@
     line-height: 20px;  */
 }
 
-#language-dropdown:hover {
-    outline: none;  /* Removes the default focus outline */
-    background-color: #d3d3d3; /* Light grey */
-}
-
-
 .result-item-container {
   background-color: #FFDD57;
   color: black;
@@ -75,15 +91,20 @@
   cursor: pointer;
   font-size: 11px;
   min-height: 30px;
-  max-height: 50px;
-  /* border-bottom: 1px solid #ccc; */
-  /* display: flex;  */
-  /* flex-direction: column; */
+  word-wrap: break-word; /* Ensure long words do not overflow */
+  /* max-height: 50px; */
 }
 
 .result-item-container:hover {
   background-color: #FFC107;
 }
+
+#language-dropdown:hover {
+    outline: none;  /* Removes the default focus outline */
+    background-color: #d3d3d3; /* Light grey */
+}
+
+
 
 .highlighted-item{
   background-color: #0151ad;
