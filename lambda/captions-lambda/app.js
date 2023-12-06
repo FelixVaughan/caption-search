@@ -43,7 +43,6 @@ const lambdaHandler = async (event) => {
     );
 
     // If we want to filter or reduce the data in languageTranscripts, do it here before returning
-    console.log(languageTranscripts);
     return createResponse(200, languageTranscripts);
   } catch (err) {
     console.error(err); // Only log the error details

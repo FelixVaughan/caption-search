@@ -352,5 +352,5 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
       controller.digestMessage(message);
     }
   }
-  sendResponse({ status: "completed" });
+  sendResponse({ status: "success" });
 });

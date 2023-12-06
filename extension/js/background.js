@@ -43,7 +43,7 @@ const messageHandler = async (message, sender, sendResponse) => {
       });
       return sendResponse({ fetch: fetchStatuses.get(videoId) });
     } catch (err) {
-      console.error(err);
+      // console.error(err);
       fetchStatuses.set(videoId, "failure"); // Set status in the Map
       return sendResponse({ fetch: "failure" });
     } finally {
