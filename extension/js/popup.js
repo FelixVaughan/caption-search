@@ -148,10 +148,10 @@ class TranscriptController {
 
       return timeString;
     };
-    end = start === 0 && end + 1 < snippet.length ? end + 1 : end;
-    const prefix = snippet.substring(0, start - 1);
-    const suffix = snippet.substring(end - 1);
-    const highlightedSlice = snippet.substring(start - 1, end - 1);
+    // end = start === 0 && end + 1 < snippet.length ? end + 1 : end;
+    const prefix = snippet.substring(0, start);
+    const suffix = snippet.substring(end);
+    const highlightedSlice = snippet.substring(start, end);
     const highlightedSnippet =
       prefix +
       `<span class="highlighted-item">${highlightedSlice}</span>` +
@@ -171,15 +171,6 @@ class TranscriptController {
   highlightedSnippet = (result, index) => {
     let { startIndex, endIndex } = result;
     if (startIndex >= endIndex) return null;
-    const nearestSpace = (index, text, searchLeft = false) => {
-      //check and set index if out of bounds
-      if (index < 0) index = 0;
-      if (index >= text.length) index = text.length - 1;
-      while (index > 0 && index < text.length && text[index] !== " ") {
-        index += searchLeft ? -1 : 1;
-      }
-      return index >= 0 && index < text.length ? index : -1;
-    };
 
     const highlightLength = endIndex - startIndex;
     const remainingLength = this.MAX_HIGHLIGHT_LENGTH - highlightLength;
@@ -188,24 +179,40 @@ class TranscriptController {
     }
     const extraLength = Math.floor(remainingLength / 2);
 
-    const startBoundary = nearestSpace(
-      startIndex - extraLength,
-      this.concatenatedSnippets
-    );
-    const endBoundary = nearestSpace(
-      endIndex + extraLength,
+    // New method to find the boundary
+    const findBoundary = (index, text, extraLength, searchLeft) => {
+      let boundary = index + (searchLeft ? -extraLength : extraLength);
+      boundary = Math.max(0, Math.min(boundary, text.length));
+
+      // Adjust to the nearest space if possible, within bounds
+      while (boundary > 0 && boundary < text.length && text[boundary] !== " ") {
+        boundary += searchLeft ? -1 : 1;
+      }
+
+      return boundary;
+    };
+
+    const startBoundary = findBoundary(
+      startIndex,
       this.concatenatedSnippets,
+      extraLength,
       true
     );
+    const endBoundary = findBoundary(
+      endIndex,
+      this.concatenatedSnippets,
+      extraLength,
+      false
+    );
+
     let snippet = this.concatenatedSnippets.substring(
       startBoundary,
       endBoundary
     );
 
-    //get relative highlighh start and end index
+    // Get relative highlight start and end index
     let relativeStartIndex = startIndex - startBoundary;
     let relativeEndIndex = endIndex - startBoundary;
-    snippet = snippet.trim();
     const highlightedSnippet = this.createHighlightedElement(
       snippet,
       relativeStartIndex,
@@ -347,8 +354,3 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
   }
   sendResponse({ status: "completed" });
 });
-
-//test video https://www.youtube.com/watch?v=WbliHNs4q14
-
-//todo
-//1. vertical overflow bug
