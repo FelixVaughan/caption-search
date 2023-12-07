@@ -4,8 +4,8 @@ Description: >
   lambda function to retrieve and parse YouTube caption information
 Globals:
   Function:
-    Timeout: 3
-    MemorySize: 128
+    Timeout: 12
+    MemorySize: 1024
     Tracing: Active
   Api:
     TracingEnabled: true
