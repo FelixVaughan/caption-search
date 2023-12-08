@@ -1,17 +1,9 @@
 const backgroundFetchTranscripts = async () => {
   const urlParams = new URLSearchParams(window.location.search);
+  //get video id from querystring
   const videoId = urlParams.get("v");
   if (videoId) {
-    chrome.runtime.sendMessage(
-      { type: "fetchTranscripts", videoId }
-      // function (response) {
-      //   if (response.fetch === "success") {
-      //     console.log("Transcripts fetched successfully.");
-      //   } else {
-      //     console.log("Failed to fetch transcripts.");
-      //   }
-      // }
-    );
+    chrome.runtime.sendMessage({ type: "fetchTranscripts", videoId });
   }
 };
 
@@ -27,9 +19,11 @@ const seek = (milliseconds) => {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "checkURL") {
+    //send message to background.js to fetch transcripts
     backgroundFetchTranscripts();
   }
   if (request.type === "seekTo") {
+    //if popup sends a request to seek to a timestamp
     seek(request.time);
   }
   sendResponse({ status: "success" });

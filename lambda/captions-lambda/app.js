@@ -12,16 +12,15 @@ const createResponse = (statusCode, message) => ({
   body: JSON.stringify(message),
 });
 
+//strip unnecessary data from transcript object
 const parseTranscriptObject = (transcriptObject) => {
-  return transcriptObject.content.body.initial_segments.map(
-    (segment) => ({
-      start_ms: segment.start_ms,
-      end_ms: segment.end_ms,
-      target_id: segment.target_id,
-      text: segment?.snippet?.text || "",
-      strike_through: segment?.snippet?.runs?.strike_through || false,
-    })
-  );
+  return transcriptObject.content.body.initial_segments.map((segment) => ({
+    start_ms: segment.start_ms,
+    end_ms: segment.end_ms,
+    target_id: segment.target_id,
+    text: segment?.snippet?.text || "",
+    strike_through: segment?.snippet?.runs?.strike_through || false,
+  }));
 };
 
 const lambdaHandler = async (event) => {
@@ -36,19 +35,14 @@ const lambdaHandler = async (event) => {
 
     const languageTranscripts = await Promise.all(
       transcriptInfo.languages.map(async (language) => {
-        let languageTranscript = await transcriptInfo.selectLanguage(
-          language
-        );
+        let languageTranscript = await transcriptInfo.selectLanguage(language);
         return {
           language: languageTranscript.selectedLanguage,
-          transcript: parseTranscriptObject(
-            languageTranscript.transcript
-          ), // languageTranscript.transcript.content.body.initial_segments,
+          transcript: parseTranscriptObject(languageTranscript.transcript),
         };
       })
     );
 
-    // If we want to filter or reduce the data in languageTranscripts, do it here before returning
     return createResponse(200, languageTranscripts);
   } catch (err) {
     console.error(err); // Only log the error details

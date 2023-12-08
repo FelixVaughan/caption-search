@@ -1,13 +1,16 @@
+/* CSS Variables for easy theme management */
 :root {
-  --highlight-blue: #0151ad;
-  --select-yellow: #FFC107;
-  --white: #ffffff;
+  --highlight-blue: #0151ad;  /* Blue color for highlighting */
+  --select-yellow: #FFC107;   /* Yellow color for selection */
+  --white: #ffffff;           /* Standard white color */
 }
 
+/* Universal box-sizing for consistent element rendering */
 *, *:before, *:after {
   box-sizing: border-box;
 }
 
+/* Styling for the scrollbar in WebKit browsers */
 /* Width and height of the entire scrollbar */
 ::-webkit-scrollbar {
   width: 8px;  /* for vertical scrollbars */
@@ -30,6 +33,7 @@
   background: #555; /* color of the scroll thumb on hover */
 }
 
+/* Styling for the extension's popup */
 .extension-popup {
   display: flex;
   flex-direction: column;
@@ -37,46 +41,53 @@
   width: 100%; /* Full width to fill the popup */
 }
 
+/* Container at the top of the popup */
 .top-container {
   display: flex;
-  align-items: center; /* Aligns items vertically in the center */
+  align-items: center; /* Vertically centers items */
   margin-bottom: 5px;
   margin-inline: auto;
-  overflow-x: hidden;
+  overflow-x: hidden; /* Prevents horizontal overflow */
 }
 
+/* Search input field styling */
 #search-input {
-  flex-grow: 1; /* Allows the input to grow and fill the space */
-  border: 1px solid #ccc; /* Example border, can be styled as needed */
+  flex-grow: 1; /* Allows the input to grow and fill available space */
+  border: 1px solid #ccc; /* Light grey border */
   padding: 5px;
-  border-right: none; /* Removes the right border to integrate with the button */
+  border-right: none; /* Removes the right border */
 }
 
+/* Search input field focus styling */
 #search-input:focus {
     outline: none; 
     border: 2px solid #ccc; 
 }
 
+/* Search button styling */
 #search-button {
-  width: 50px; /* Fixed width for the button */
+  width: 50px; /* Fixed width */
   background-color: green;
   color: white;
-  border: 1px solid green; /* Same color as the button for integration */
+  border: 1px solid green; /* Green border */
   padding: 5px 10px;
   cursor: pointer;
-  outline: none; /* Removes the outline to integrate with the search bar */
+  outline: none; /* Removes default outline */
 }
 
+/* Search button active state styling */
 #search-button:active {
   background-color: yellowgreen;
 }
 
+/* Results counter styling */
 #results-counter {
-  margin-left: 5px; /* Space between the button and counter */
+  margin-left: 5px; /* Space from adjacent elements */
   text-wrap: nowrap;
   font-size: 12px;
 }
 
+/* Language dropdown styling */
 #language-dropdown {
     border: 1px solid #ccc;
     padding: 5px 7px;
@@ -87,6 +98,7 @@
     cursor: pointer;
 }
 
+/* Individual result item container styling */
 .result-item-container {
   background-color: #FFDD57;
   color: black;
@@ -94,74 +106,79 @@
   margin: 1px;
   cursor: pointer;
   font-size: 11px;
-  word-wrap: break-word; /* Ensure long words do not overflow */
+  word-wrap: break-word; /* Prevents text overflow */
 }
 
+/* Hover state for result items */
 .result-item-container:hover {
   background-color: var(--select-yellow);
 }
 
+/* Hover and focus states for language dropdown */
 #language-dropdown:hover, #language-dropdown:focus {
-    outline: none;  /* Removes the default focus outline */
-    background-color: #d3d3d3; /* Light grey */
+    outline: none;  /* Removes default outline */
+    background-color: #d3d3d3; /* Light grey on hover/focus */
 }
 
-
+/* Highlighted item styling */
 .highlighted-item{
-  background-color: var(--highlight-blue);
+  background-color: var(--highlight-blue); /* Blue background */
   color: white;
   padding: 2px;
   font-weight: 600;
 }
 
-
+/* Floating right element in result items */
 .result-time{
   float: right;
 }
 
+/* Container for all results */
 #results-container {
   display: flex;
   flex-direction: column;
-  overflow-y: auto; /* Makes it scrollable */
+  overflow-y: auto; /* Scrollable */
   max-height: 300px; 
 }
 
+/* Styling for selected items */
 .selected-item {
-  background-color: var(--select-yellow); /* or any other color that stands out */
+  background-color: var(--select-yellow); /* Yellow background */
   color: white;
 }
 
+/* Toggle button styling */
 #case-toggle {
-  background-color: white; /* Match the background color with your design */
-  border: 1px solid #ccc; /* Match the border style with your design */
-  margin-left: 5px; /* Add some space between the toggle and the "Go" button */
+  background-color: white; /* White background */
+  border: 1px solid #ccc; /* Light grey border */
+  margin-left: 5px; /* Space from adjacent elements */
   color: #888;
 }
 
-
+/* Search wrapper for positioning */
 .search-wrapper {
   position: relative;
-  flex-grow: 1; /* Allows the input to grow and fill the space */
+  flex-grow: 1; /* Allows growth to fill space */
 }
 
+/* Additional styling for search input */
 #search-input {
-  padding-right: 30px; /* Make room for the icon inside the input */
+  padding-right: 30px; /* Space for the icon inside the input */
 }
 
+/* Styling for case toggle button */
 #case-toggle {
-  position: absolute; /* Position the button inside the search-wrapper */
+  position: absolute; /* Absolute positioning inside the search wrapper */
   right: 0; /* Align to the right */
   top: 0; /* Align to the top */
-  border: none; /* No border for the toggle button */
-  background: none; /* No background to blend in with the input */
-  padding: 5px; /* Padding to match the input field */
+  border: none; /* No border */
+  background: none; /* Transparent background */
+  padding: 5px; /* Padding for alignment */
   cursor: pointer;
 }
 
-/* Adjust the icon size and alignment if necessary */
-
-
+/* Styling for active case toggle */
 #case-toggle.active-case {
-  color: var(--highlight-blue); /* The color you want when the toggle is active */
+  color: var(--highlight-blue); /* Highlight blue when active */
   font-weight: 400;
 }

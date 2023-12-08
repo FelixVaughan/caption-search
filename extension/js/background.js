@@ -1,4 +1,4 @@
-const requestUrl = "http://127.0.0.1:3333";
+const requestUrl = "http://127.0.0.1:3333"; //dev addr
 let transcripts = new Map();
 let fetchStatuses = new Map(); // Initialize fetchStatuses as a Map
 
@@ -16,6 +16,7 @@ const enforceMapSizeCap = (...maps) => {
 const messageHandler = async (message, sender, sendResponse) => {
   const videoId = message.videoId;
   if (message.type === "fetchTranscripts") {
+    // If the transcript is being fetched or has already succeeded
     if (
       fetchStatuses.has(videoId) &&
       ["pending", "success"].includes(fetchStatuses.get(videoId))
