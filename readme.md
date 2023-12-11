@@ -38,6 +38,7 @@ git clone git@github.com:FelixVaughan/caption-search.git
 3. Load the unzipped extension.
    ![Load Extension](https://cdnblog.webkul.com/blog/wp-content/uploads/2019/07/15065849/4-3.png)
 4. Select the extension folder from the cloned directory.
+   ![Screenshot from 2023-12-09 14-55-17](https://github.com/FelixVaughan/caption-search/assets/17572046/5e3f34c7-79af-4f9f-8720-0673f28dcc01)
    ![Select Folder](https://github.com/FelixVaughan/caption-search/assets/17572046/89c0910d-6699-405e-9d5b-b66641848d90)
 
 ## Demos
