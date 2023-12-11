@@ -1,4 +1,4 @@
-const requestUrl = "http://127.0.0.1:3333"; //dev addr
+const requestUrl = "https://rbdfwc0yrb.execute-api.us-east-1.amazonaws.com/"; //"http://127.0.0.1:3333"; //dev addr
 let transcripts = new Map();
 let fetchStatuses = new Map(); // Initialize fetchStatuses as a Map
 

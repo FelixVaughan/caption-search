@@ -15,7 +15,7 @@ class TranscriptController {
     this.languageSelectElem = document.getElementById("language-dropdown");
     this.caseToggle = document.getElementById("case-toggle");
     this.caseSensitive = false;
-    this.caseToggle.addEventListener("click", this.handleCaseToggle);
+    this.caseToggle.addEventListener("click", this.handleCaseToggle.bind(this));
   }
 
   /**
