@@ -66,9 +66,9 @@ Select the extension folder from the cloned directory
 ## Demo
 
 
-![Demo video 1](https://github.com/FelixVaughan/caption-search/assets/17572046/d241afca-4eb9-4e80-b2af-2ed75a56c3c6)
+![Demo 1](https://github.com/FelixVaughan/caption-search/assets/17572046/d241afca-4eb9-4e80-b2af-2ed75a56c3c6)
 
 
-![Demo Video 2](https://github.com/FelixVaughan/caption-search/assets/17572046/404e7070-ee48-458c-b7c4-b2868a60ffb0)
+![Demo 2](https://github.com/FelixVaughan/caption-search/assets/17572046/404e7070-ee48-458c-b7c4-b2868a60ffb0)
 
 
