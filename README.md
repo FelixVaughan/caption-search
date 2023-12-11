@@ -6,21 +6,33 @@ A Chrome web extension for finding video times based on caption and subtitle tex
 ## Authors
 - Felix Vaughan ([GitHub Profile](https://github.com/FelixVaughan/))
 
+## Requirements
+
+Before setting up the project, ensure you have the following tools installed:
+
+- **AWS SAM**: AWS Serverless Application Model (SAM) is required for building and testing Lambda functions. Install it from the [AWS SAM website](https://aws.amazon.com/serverless/sam/).
+- **Node.js**: Node.js is necessary for running the backend services. Download and install it from [Node.js website](https://nodejs.org/).
+- **Docker**: Docker is used for creating a local environment that mimics the Lambda environment for testing purposes. Install Docker from the [Docker website](https://www.docker.com/get-started).
+
 ## Setup and Installation
 
 ### Clone the Project
 ```bash
-git clone git@github.com:FelixVaughan/caption-search.git
+git clone git@github.com:FelixVaughan/youtube-captions-search.git
 ```
 
 ### Prepare the Backend
 1. Navigate to the lambda directory:
    ```bash
-   cd youtube-captions-search/lambda
+   cd youtube-captions-search/lambda/captions-lambda
    ```
 2. Install dependencies:
    ```bash
    npm i
+   ```
+3. Go to directory containing template.yaml:
+   ```bash
+   cd ..
    ```
 3. Build the project:
    ```bash
