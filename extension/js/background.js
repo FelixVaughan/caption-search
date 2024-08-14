@@ -1,4 +1,4 @@
-const requestUrl = "http://127.0.0.1:3333"; //dev addr
+const requestUrl = "http://127.0.0.1:3333";
 let transcripts = new Map();
 let fetchStatuses = new Map(); // Initialize fetchStatuses as a Map
 
@@ -44,7 +44,7 @@ const messageHandler = async (message, sender, sendResponse) => {
       });
       return sendResponse({ fetch: fetchStatuses.get(videoId) });
     } catch (err) {
-      // console.error(err);
+      console.error(err);
       fetchStatuses.set(videoId, "failure"); // Set status in the Map
       return sendResponse({ fetch: "failure" });
     } finally {

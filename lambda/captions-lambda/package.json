@@ -8,7 +8,7 @@
   "license": "MIT",
   "dependencies": {
     "axios": ">=0.21.1",
-    "youtubei.js": "^6.4.1"
+    "youtubei.js": "*"
   },
   "scripts": {
     "test": "mocha tests/unit/"
